@@ -1,5 +1,16 @@
 
 
+#
+# Ansible things
+#
+
+ansible/.vault_pass
+*.vault
+
+#
+# Python things
+#
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
