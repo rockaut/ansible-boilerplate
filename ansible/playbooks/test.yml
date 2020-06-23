@@ -1,0 +1,7 @@
+---
+
+- hosts:
+    - localhost
+  tasks:
+    - name: just for fun
+      ping:
