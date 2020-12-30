@@ -35,7 +35,7 @@ initialize: total-clean create-pythonenv
 ansible-prepare:
 	@cd ${ANSIBLEDIR}; \
 	mkdir -p tmp; \
-	chmod 0644 .vault_pass; \
+	chmod 0644 .vault_pass;
 
 ansible-encrypt: ansible-prepare
 	@. $(PY_VENV_DIR)/bin/activate; cd $(ANSIBLE_DIR); \
