@@ -1,4 +1,4 @@
-ANSIBLEDIR := ./ansible
+ANSIBLEDIR := ${PWD}/ansible
 PYTHONVENV := ./venv
 
 CURRENT_BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
@@ -37,15 +37,6 @@ ansible-prepare:
 	mkdir -p tmp; \
 	chmod 0644 .vault_pass;
 
-ansible-encrypt: ansible-prepare
-	@. $(PY_VENV_DIR)/bin/activate; cd $(ANSIBLE_DIR); \
-		find ./ -name "vault" \( -exec echo {} \; -not -path '*/ansible_collections/*' -exec ansible-vault encrypt {} \; \); \
-		find ./ -name "*.vault" \( -exec echo {} \; -not -path '*/ansible_collections/*' -exec ansible-vault decrypt {} \; \);
-
-ansible-decrypt: ansible-prepare
-	@. $(PY_VENV_DIR)/bin/activate; cd $(ANSIBLE_DIR); \
-		find ./ -name "vault" \( -exec echo {} \; -not -path '*/ansible_collections/*' -exec ansible-vault decrypt {} \; \); \
-		find ./ -name "*.vault" \( -exec echo {} \; -not -path '*/ansible_collections/*' -exec ansible-vault decrypt {} \; \);
 
 ansible-setup: ansible-prepare
 	. ${PYTHONVENV}/bin/activate; \
@@ -53,7 +44,20 @@ ansible-setup: ansible-prepare
 		cd ${ANSIBLEDIR}; \
 		ansible-galaxy install -r requirements.yml
 
-vaults-backup: ansible-encrypt
+
+vaults-encrypt: ansible-prepare
+	. $(PYTHONVENV)/bin/activate; cd ${ANSIBLEDIR}; \
+		find \
+		-type f \( -iname "vault" -or -iname "*.vault" \) \
+		-print -exec ansible-vault encrypt {} \;
+
+vaults-decrypt: ansible-prepare
+	. $(PYTHONVENV)/bin/activate; cd ${ANSIBLEDIR}; \
+		find \
+		-type f \( -iname "vault" -or -iname "*.vault" \) \
+		-print -exec ansible-vault decrypt {} \;
+
+vaults-backup: vaults-encrypt
 	rsync -vrapP --prune-empty-dirs --delete \
 		--exclude='*/.git/' --exclude='*/venv/' --exclude='*/ansible/collections/*' \
 		--include='vault' --include='.vault' --include='vault.yml' --include='vault.yaml' \
