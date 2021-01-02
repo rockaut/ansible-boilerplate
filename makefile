@@ -44,7 +44,6 @@ ansible-setup: ansible-prepare
 		cd ${ANSIBLEDIR}; \
 		ansible-galaxy install -r requirements.yml
 
-
 vaults-encrypt: ansible-prepare
 	. $(PYTHONVENV)/bin/activate; cd ${ANSIBLEDIR}; \
 		find \
@@ -61,21 +60,27 @@ vaults-backup: vaults-encrypt
 	rsync -vrapP --prune-empty-dirs --delete \
 		--exclude='*/.git/' --exclude='*/venv/' --exclude='*/ansible/collections/*' \
 		--include='vault' --include='.vault' --include='vault.yml' --include='vault.yaml' \
+		--include='*/secrets/*/*' \
 		--include='*/' --exclude='*' \
 		${PWD} ${BASE_BACKUP_DIR}/${CURRENT_BRANCH}
+secrets-backup: vaults-backup
 
 vaults-restore:
 	@echo "*** restores missing vaults and updates older ones ***"
 	rsync -vrapP --update \
 		--exclude='*/.git/' --exclude='*/venv/' --exclude='*/ansible/collections/*' \
 		--include='vault' --include='.vault' --include='vault.yml' --include='vault.yaml' \
+		--include='*/secrets/*/*' \
 		--include='*/' --exclude='*' \
 		${BASE_BACKUP_DIR}/${CURRENT_BRANCH}/*/ ${PWD}
+secrets-restore: vaults-restore
 
 vaults-populate:
 	@echo "*** restores missing vaults not touching already present ***"
 	rsync -vrapP --ignore-existing \
 		--exclude='*/.git/' --exclude='*/venv/' --exclude='*/ansible/collections/*' \
 		--include='vault' --include='.vault' --include='vault.yml' --include='vault.yaml' \
+		--include='*/secrets/*/*' \
 		--include='*/' --exclude='*' \
 		${BASE_BACKUP_DIR}/${CURRENT_BRANCH}/*/ ${PWD}
+secrets-populate: vaults-populate
