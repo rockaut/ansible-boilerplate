@@ -16,7 +16,7 @@ create-pythonenv: total-clean
 	@( \
 		. ${PYTHONVENV}/bin/activate; \
 		pip install wheel; \
-		pip install --requirement requirements.txt
+		pip install -r requirements.txt; \
 	)
 
 upgrade-pythonenv:
@@ -25,7 +25,7 @@ upgrade-pythonenv:
 	@( \
 		. ${PYTHONVENV}/bin/activate; \
 		pip install wheel; \
-		pip install --upgrade --requirement requirements.txt
+		pip install --upgrade --requirement requirements.txt; \
 	)
 
 initialize: total-clean create-pythonenv
@@ -36,7 +36,6 @@ ansible-prepare:
 	@cd ${ANSIBLEDIR}; \
 	mkdir -p tmp; \
 	chmod 0644 .vault_pass;
-
 
 ansible-setup: ansible-prepare
 	. ${PYTHONVENV}/bin/activate; \
@@ -84,3 +83,8 @@ vaults-populate:
 		--include='*/' --exclude='*' \
 		${BASE_BACKUP_DIR}/${CURRENT_BRANCH}/*/ ${PWD}
 secrets-populate: vaults-populate
+
+SUB:=prod
+
+k:
+	kustomize build k8s/${APP}/overlays/${SUB} | kubectl apply -f -
