@@ -4,7 +4,7 @@ PYTHONVENV := ./venv
 CURRENT_BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
 CURRENT_HASH := $(shell git rev-parse HEAD)
 
-BASE_BACKUP_DIR := /mnt/c/Users/fisch/OneDrive/Code/github/rockaut/home-stack
+BASE_BACKUP_DIR := ...
 
 total-clean:
 	@echo "*** removing all the things ***"
